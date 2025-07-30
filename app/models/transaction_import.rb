@@ -13,6 +13,16 @@ class TransactionImport < Import
         category = mappings.categories.mappable_for(row.category)
         tags = row.tags_list.map { |tag| mappings.tags.mappable_for(tag) }.compact
 
+        # Duplicate import prevention
+        next if Entry.find_by(
+          account: mapped_account,
+          date: row.date_iso,
+          amount: row.signed_amount,
+          name: row.name,
+          currency: row.currency,
+          notes: row.notes
+        )
+
         Transaction.new(
           category: category,
           tags: tags,
@@ -28,7 +38,7 @@ class TransactionImport < Import
         )
       end
 
-      Transaction.import!(transactions, recursive: true)
+      Transaction.import!(transactions.compact, recursive: true)
     end
   end
 

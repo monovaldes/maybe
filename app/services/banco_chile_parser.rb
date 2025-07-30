@@ -42,15 +42,15 @@ class BancoChileParser
         next
       end
       next unless reached_description
-      next if row[2].blank?
+      next if [row[1], row[2]].any?(&:blank?) || [row[4], row[5]].all?(&:blank?)
       # date
       d,m,y = row[1].split("/")
-      csv_string << [m,d,y].join("/").concat(",")
+      csv_string << [y,m,d].join("-").concat(",")
       # name
       csv_string << row[2].concat(",")
-      # amount
-      csv_string << row[4].to_s.concat(",") if row[4].to_s.present?
-      csv_string << "-#{row[5]}," if row[5].to_s.present?
+      # amount (income as positive, expense as negative)
+      csv_string << "-#{row[4]}," if row[4].to_s.present?
+      csv_string << "#{row[5]}," if row[5].to_s.present?
       # currency
       csv_string << "CLP\n"
     end
@@ -66,15 +66,15 @@ class BancoChileParser
         next
       end
       next unless reached_description
-      next if row[2].blank?
+      next if [row[1], row[2]].any?(&:blank?) || [row[10], row[11]].all?(&:blank?)
       # date
       d,m,y = row[1].split("/")
-      csv_string << [m,d,y].join("/").concat(",")
+      csv_string << [y,m,d].join("-").concat(",")
       # name
       csv_string << row[4].concat(",")
-      # amount
-      csv_string << row[10].to_s.concat(",") if row[10].to_s.present?
-      csv_string << "-#{row[11]}," if row[11].to_s.present?
+      # amount (income as positive, expense as negative)
+      csv_string << "-#{row[10]}," if row[10].to_s.present?
+      csv_string << "#{row[11]}," if row[11].to_s.present?
       # currency
       csv_string << "CLP\n"
     end
@@ -90,14 +90,14 @@ class BancoChileParser
         next
       end
       next unless reached_description
-      next if row[2].blank?
+      next if [row[1], row[4], row[8]].any?(&:blank?)
       # date
       d,m,y = row[1].split("/")
-      csv_string << [m,d,y].join("/").concat(",")
+      csv_string << [y,m,d].join("-").concat(",")
       # name
       csv_string << row[4].concat(",")
-      # amount
-      csv_string << row[8].to_s.concat(",") if row[8].to_s.present?
+      # amount (income as positive, expense as negative, we need to change the sign if present)
+      csv_string << row[8].to_s.starts_with?('-') ? "#{row[8].to_s.sub('-', '')}," : "-#{row[8]},"
       # currency
       csv_string << "USD\n"
     end
