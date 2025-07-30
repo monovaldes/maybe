@@ -66,15 +66,14 @@ class BancoChileParser
         next
       end
       next unless reached_description
-      next if [row[1], row[2]].any?(&:blank?) || [row[10], row[11]].all?(&:blank?)
+      next if [row[1], row[4], row[10]].any?(&:blank?)
       # date
       d,m,y = row[1].split("/")
       csv_string << [y,m,d].join("-").concat(",")
       # name
       csv_string << row[4].concat(",")
       # amount (income as positive, expense as negative)
-      csv_string << "-#{row[10]}," if row[10].to_s.present?
-      csv_string << "#{row[11]}," if row[11].to_s.present?
+      csv_string << "#{-1*row[10]},"
       # currency
       csv_string << "CLP\n"
     end
@@ -96,8 +95,8 @@ class BancoChileParser
       csv_string << [y,m,d].join("-").concat(",")
       # name
       csv_string << row[4].concat(",")
-      # amount (income as positive, expense as negative, we need to change the sign if present)
-      csv_string << row[8].to_s.starts_with?('-') ? "#{row[8].to_s.sub('-', '')}," : "-#{row[8]},"
+      # amount (income as positive, expense as negative, we need to change the sign)
+      csv_string << "#{-1*row[8]},"
       # currency
       csv_string << "USD\n"
     end
